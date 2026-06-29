@@ -59,9 +59,11 @@ hydra -t 1 -W 3 -l jan.kowalski -P /tmp/pass.txt rdp://192.168.56.20
 login: jan.kowalski  password: Password123
 ```
 
-> 📸 **SCREENSHOT 1 — `screenshots/01-hydra-attack.png`**
-> The Kali terminal showing the full hydra run: the 8 attempts and the line
-> revealing `login: jan.kowalski password: Password123`.
+**The attack — hydra brute force from Kali:**
+
+![Hydra RDP brute force attack from Kali](screenshots/01-hydra-attack.png)
+
+*The full hydra run — 8 attempts ending with the valid credentials `jan.kowalski : Password123`.*
 
 ---
 
@@ -83,20 +85,23 @@ The Wazuh agent forwarded these to the manager, which correlated them.
 - Rule **92657** fired on the successful logon that followed the failures, and
   even attributed the source to the attacker host (`kali`).
 
-> 📸 **SCREENSHOT 2 — `screenshots/02-wazuh-failed-logons.png`**
-> The Wazuh **Threat Hunting** event list showing the stream of rule 60122
-> ("Logon Failure") and rule 60204 ("Multiple Windows Logon Failures") on WS01,
-> with timestamps around 09:14–09:16.
+**Failed logons detected in Wazuh (rules 60122 + 60204):**
 
-> 📸 **SCREENSHOT 3 — `screenshots/03-wazuh-successful-logon.png`**
-> The alert for rule **92657** — "Successful Remote Logon Detected - User:
-> jan.kowalski - NTLM authentication, possible pass-the-hash attack". This is the
-> compromise alert.
+![Wazuh failed logon alerts](screenshots/02-wazuh-failed-logons.png)
 
-> 📸 **SCREENSHOT 4 — `screenshots/04-wazuh-alert-detail.png`** *(optional but strong)*
-> Click into the 60204 alert and expand it. Capture the event detail panel —
-> showing `data.win.system.eventID: 4625`, the target user, and the source IP.
-> This proves you can read a raw alert, not just the summary list.
+*Wazuh Threat Hunting — the burst of failed logons on WS01. Rule 60204 correlates them into a brute-force alert (level 10).*
+
+**The compromise — successful logon flagged by Wazuh (rule 92657):**
+
+![Wazuh successful remote logon alert](screenshots/03-wazuh-successful-logon.png)
+
+*Rule 92657 fires on the successful NTLM logon following the failures — flagged as a possible compromise, with the source attributed to `kali`.*
+
+**Raw alert detail (Event ID 4625):**
+
+![Wazuh alert detail showing Event ID 4625](screenshots/04-wazuh-alert-detail.png)
+
+*Expanded alert showing the raw Windows event — Event ID 4625, target user, and source IP.*
 
 ---
 
