@@ -96,7 +96,7 @@ and a SOC-style incident report.
 
 | # | Scenario | MITRE ATT&CK | Status |
 | --- | --- | --- | --- |
-| 01 | RDP / SMB brute force | T1110 | 🔜 planned |
+| 01 | [RDP brute force](./attacks/01-brute-force) | T1110.001 | ✅ done |
 | 02 | Kerberoasting | T1558.003 | 🔜 planned |
 | 03 | Credential dumping (Mimikatz) | T1003 | 🔜 planned |
 | 04 | Defender tampering | T1562.001 | 🔜 planned |
