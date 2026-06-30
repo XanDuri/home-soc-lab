@@ -55,9 +55,9 @@ MSSQLSvc/sqlserver.corp.lab:1433  svc_sql
 $krb5tgs$23$*svc_sql$CORP.LAB$corp.lab/svc_sql*$bf879b52...c66562
 ```
 
-> 📸 **SCREENSHOT 1 — `screenshots/01-getuserspns-attack.png`**
-> The Kali terminal showing `impacket-GetUserSPNs` returning the `svc_sql` SPN
-> and the `$krb5tgs$` hash.
+![GetUserSPNs attack — svc_sql ticket requested](screenshots/01-getuserspns-attack.png)
+
+*`impacket-GetUserSPNs` authenticated as `jan.kowalski`, found the `svc_sql` SPN, and returned the `$krb5tgs$` hash.*
 
 ### Crack the ticket offline
 
@@ -77,6 +77,10 @@ john --show --format=krb5tgs /tmp/kerb_hash.txt
 # ?:SummerSql2024
 ```
 
+![John the Ripper cracking the TGS hash](screenshots/02-john-crack.png)
+
+*John the Ripper recovers the service account password: `SummerSql2024`.*
+
 **With hashcat** (mode 13100 = Kerberos 5 TGS-REP; `-D 1` forces CPU in the VM):
 
 ```bash
@@ -84,16 +88,14 @@ hashcat -m 13100 /tmp/kerb_hash.txt /tmp/kerb_wordlist.txt --force -D 1
 # Status: Cracked  →  ...:SummerSql2024
 ```
 
+![hashcat cracking the TGS hash (part 1)](screenshots/03-hashcat-crack-1.png)
+
+![hashcat cracking the TGS hash (part 2) — Status: Cracked](screenshots/04-hashcat-crack-2.png)
+
+*hashcat cracks the same hash (output shown in two parts) — ending with `Status: Cracked` and the recovered password `SummerSql2024`.*
+
 **Result:** the service account password is **`SummerSql2024`**. The attacker now
 holds valid credentials for `svc_sql` without ever logging into it.
-
-> 📸 **SCREENSHOT 2 — `screenshots/02-john-crack.png`**
-> John the Ripper cracking the hash and `--show` revealing `SummerSql2024`.
-
-> 📸 **SCREENSHOT 3 — `screenshots/03-hashcat-crack-1.png`** and
-> **SCREENSHOT 4 — `screenshots/04-hashcat-crack-2.png`**
-> hashcat cracking the same hash (the command output was long, so it is captured
-> in two parts) — ending with `Status: Cracked` and the recovered password.
 
 ---
 
@@ -110,10 +112,9 @@ Kerberoasting in that event:
 | `TargetUserName` | jan.kowalski@CORP.LAB | a low-priv user requesting a service ticket |
 | `IpAddress` | ::ffff:192.168.56.100 | the attacker host (KALI) |
 
-> 📸 **SCREENSHOT 5 — `screenshots/05-event-4769-raw.png`**
-> The raw Event 4769 (from DC01 Event Viewer or the Wazuh alert detail) showing
-> `ServiceName: svc_sql`, `Ticket Encryption Type: 0x17`, and the client address
-> `192.168.56.100`.
+![Raw Event 4769 showing svc_sql and RC4 encryption](screenshots/05-event-4769-raw.png)
+
+*The raw Event 4769 — `ServiceName: svc_sql`, `Ticket Encryption Type: 0x17` (RC4), client address `192.168.56.100` (KALI).*
 
 ### Important detection nuance (learned hands-on)
 
@@ -165,9 +166,9 @@ Possible Kerberoasting: TGS request with weak RC4 encryption
 for service svc_sql by jan.kowalski@CORP.LAB
 ```
 
-> 📸 **SCREENSHOT 6 — `screenshots/06-wazuh-custom-alert.png`**
-> The Wazuh alert list showing multiple **level 12** hits from **rule 100100**
-> with the Kerberoasting description.
+![Wazuh custom alert — rule 100100 level 12 Kerberoasting](screenshots/06-wazuh-custom-alert.png)
+
+*The Wazuh alert list showing multiple **level 12** hits from **custom rule 100100** — Kerberoasting detected.*
 
 This is the heart of the scenario: not just running an attack, but **engineering
 a detection** for it and validating that it fires.
