@@ -87,9 +87,9 @@ dir C:\Windows\Temp\lsass.dmp
 # -a----   01.07.2026   08:22   60333046 lsass.dmp
 ```
 
-> 📸 **SCREENSHOT 1 — `screenshots/01-lsass-dump.png`**
-> WS01 PowerShell — the `rundll32 ... comsvcs.dll MiniDump` command and the
-> resulting 60 MB `lsass.dmp` file.
+![LSASS memory dump via comsvcs.dll on WS01](screenshots/01-lsass-dump.png)
+
+*The `rundll32 ... comsvcs.dll MiniDump` command produces a 60 MB `lsass.dmp` — a full memory dump of the credential store.*
 
 ### Note: Windows Defender actively fought this
 
@@ -125,9 +125,9 @@ The tell-tale signs:
 | `GrantedAccess` | **0x1FFFFF** | full access — classic dumping signature |
 | `CallTrace` | contains `comsvcs.dll` | the exact dumping technique |
 
-> 📸 **SCREENSHOT 2 — `screenshots/02-sysmon-event10-raw.png`**
-> The raw Sysmon Event 10 showing rundll32 → lsass with `GrantedAccess: 0x1FFFFF`
-> and `comsvcs.dll` in the call trace.
+![Raw Sysmon Event 10 — rundll32 accessing lsass with full permissions](screenshots/02-sysmon-event10-raw.png)
+
+*The raw Sysmon Event 10: `rundll32.exe` → `lsass.exe`, `GrantedAccess: 0x1FFFFF`, with `comsvcs.dll` visible in the call trace.*
 
 ---
 
@@ -167,8 +167,9 @@ Rule 100101 (level 12):
 Possible credential dumping: process C:\Windows\system32\rundll32.exe accessed LSASS memory
 ```
 
-> 📸 **SCREENSHOT 3 — `screenshots/03-wazuh-alert-100101.png`**
-> The Wazuh alert (rule 100101, level 12) showing **rundll32.exe** accessing LSASS.
+![Wazuh custom alert 100101 — rundll32 credential dumping](screenshots/03-wazuh-alert-100101.png)
+
+*The Wazuh alert (custom rule 100101, level 12) — `rundll32.exe` accessing LSASS memory, mapped to MITRE T1003.001.*
 
 ### Rule tuning — dealing with false positives
 
@@ -176,6 +177,10 @@ The first working version of the rule alerted on **every** process touching LSAS
 — including legitimate Windows processes. In this lab that meant false positives
 from `VBoxService.exe`, then `svchost.exe`, etc. Excluding them one by one is a
 losing game — many legitimate processes access LSASS constantly.
+
+![False positives before tuning — VBoxService and svchost accessing LSASS](screenshots/04-rule-tuning.png)
+
+*Before tuning: the rule fired on legitimate processes (VBoxService, svchost) too. The fix is a baseline exclusion, not chasing each one individually.*
 
 The proper fix is a **baseline exclusion**: a `negate="yes"` list of known-good
 processes, so the rule only alerts on the *unexpected* ones (like rundll32). This
