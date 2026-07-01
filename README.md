@@ -98,7 +98,7 @@ and a SOC-style incident report.
 | --- | --- | --- | --- |
 | 01 | [RDP brute force](./attacks/01-brute-force) | T1110.001 | ✅ done |
 | 02 | [Kerberoasting](./attacks/02-kerberoasting) | T1558.003 | ✅ done |
-| 03 | Credential dumping (Mimikatz) | T1003 | 🔜 planned |
+| 03 | [Credential dumping (LSASS)](./attacks/03-credential-dumping) | T1003.001 | ✅ done |
 | 04 | Defender tampering | T1562.001 | 🔜 planned |
 | 05 | Event log clearing | T1070.001 | 🔜 planned |
 | 06 | Scheduled task persistence | T1053.005 | 🔜 planned |
