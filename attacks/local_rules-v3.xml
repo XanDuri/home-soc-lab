@@ -1,0 +1,58 @@
+<!--
+  Custom Wazuh detection rules for home-soc-lab.
+  Deploy to:  /var/ossec/etc/rules/local_rules.xml  on the Wazuh manager,
+  then:        sudo systemctl restart wazuh-manager
+-->
+
+<group name="local,custom,">
+
+  <!--
+    Scenario 02 — Kerberoasting (MITRE T1558.003)
+    Fires on a Kerberos TGS request (Event ID 4769) using weak RC4 encryption
+    (0x17). Legitimate modern Kerberos uses AES (0x12); RC4 against a named
+    service account is a strong Kerberoasting signal.
+  -->
+  <rule id="100100" level="12">
+    <if_sid>60103</if_sid>
+    <field name="win.system.eventID">^4769$</field>
+    <field name="win.eventdata.ticketEncryptionType">^0x17$</field>
+    <description>Possible Kerberoasting: TGS request with weak RC4 encryption for service $(win.eventdata.serviceName) by $(win.eventdata.targetUserName)</description>
+    <mitre>
+      <id>T1558.003</id>
+    </mitre>
+  </rule>
+
+  <!--
+    Scenario 03 — Credential Dumping / LSASS access (MITRE T1003.001)
+    Fires on Sysmon Event ID 10 (ProcessAccess) targeting lsass.exe.
+    Inherits from the built-in sysmon_event_10 group. The negate list is a
+    baseline of known-good processes that legitimately touch LSASS, so the rule
+    only alerts on unexpected access (e.g. rundll32, mimikatz).
+  -->
+  <rule id="100101" level="12">
+    <if_group>sysmon_event_10</if_group>
+    <field name="win.eventdata.targetImage">lsass\.exe$</field>
+    <field name="win.eventdata.sourceImage" negate="yes">svchost\.exe$|VBoxService\.exe$|MsMpEng\.exe$|wininit\.exe$|services\.exe$|csrss\.exe$|lsass\.exe$|SearchIndexer\.exe$|MicrosoftEdgeUpdate\.exe$</field>
+    <description>Possible credential dumping: process $(win.eventdata.sourceImage) accessed LSASS memory</description>
+    <mitre>
+      <id>T1003.001</id>
+    </mitre>
+  </rule>
+
+  <!--
+    Scenario 04 — Defender Tampering / Impair Defenses (MITRE T1562.001)
+    Inherits from built-in rule 62154 (Defender config change, level 5) and
+    escalates to level 12 only when the change is genuinely suspicious:
+    disabling protection or adding a folder exclusion. Filters out benign
+    Defender startup noise.
+  -->
+  <rule id="100102" level="12">
+    <if_sid>62154</if_sid>
+    <field name="win.system.message">Exclusions\\Paths|DisableRealtimeMonitoring|DisableBehaviorMonitoring|DisableAntiSpyware|TamperProtection</field>
+    <description>Possible Defender tampering: a security setting was disabled or an exclusion was added</description>
+    <mitre>
+      <id>T1562.001</id>
+    </mitre>
+  </rule>
+
+</group>
