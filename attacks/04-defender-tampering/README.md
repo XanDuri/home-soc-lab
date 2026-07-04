@@ -42,9 +42,9 @@ Add-MpPreference -ExclusionPath "C:\Temp"
 Each of these is a classic adversary move — the **folder exclusion** in particular
 is a favourite: drop the payload in an excluded path and Defender ignores it.
 
-> 📸 **SCREENSHOT 1 — `screenshots/01-tampering-commands.png`**
-> WS01 PowerShell — the `Set-MpPreference -Disable...` and
-> `Add-MpPreference -ExclusionPath` commands.
+![Defender tampering commands on WS01](screenshots/01-tampering-commands.png)
+
+*Disabling real-time protection, behaviour monitoring, and adding a folder exclusion via PowerShell.*
 
 ---
 
@@ -66,9 +66,9 @@ Event ID 5007 — Defender configuration changed
 And disabling real-time protection / tamper protection produces further 5007 (and
 5001) entries.
 
-> 📸 **SCREENSHOT 2 — `screenshots/02-defender-5007-raw.png`**
-> The raw Event 5007 in the Defender Operational log, showing the exclusion path
-> added and the "unexpected event... may be malware" warning.
+![Raw Defender Event 5007 showing the exclusion added](screenshots/02-defender-5007-raw.png)
+
+*The raw Event 5007 — the `C:\Temp` exclusion added, with Windows' own "unexpected event... may have been caused by malware" warning.*
 
 ### Telemetry lesson — the channel had to be added to the agent
 
@@ -119,12 +119,13 @@ Rule 100102 (level 12):
 Possible Defender tampering: a security setting was disabled or an exclusion was added
 ```
 
-> 📸 **SCREENSHOT 3 — `screenshots/03-wazuh-alert-100102.png`**
-> The Wazuh alert (custom rule 100102, level 12) for Defender tampering.
+![Wazuh custom alert 100102 for Defender tampering](screenshots/03-wazuh-alert-100102.png)
 
-> 📸 **SCREENSHOT 4 — `screenshots/04-custom-rules.png`** *(optional)*
-> The `local_rules.xml` file showing all three custom rules (100100 Kerberoasting,
-> 100101 credential dumping, 100102 Defender tampering).
+*The Wazuh alert (custom rule 100102, level 12) — Defender tampering detected, mapped to T1562.001.*
+
+![The three custom rules in local_rules.xml](screenshots/04-custom-rules.png)
+
+*`local_rules.xml` with the custom rules: 100100 (Kerberoasting), 100101 (credential dumping), 100102 (Defender tampering).*
 
 ---
 
