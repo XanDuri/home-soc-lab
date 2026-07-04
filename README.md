@@ -100,7 +100,7 @@ and a SOC-style incident report.
 | 02 | [Kerberoasting](./attacks/02-kerberoasting) | T1558.003 | ✅ done |
 | 03 | [Credential dumping (LSASS)](./attacks/03-credential-dumping) | T1003.001 | ✅ done |
 | 04 | [Defender tampering](./attacks/04-defender-tampering) | T1562.001 | ✅ done |
-| 05 | Event log clearing | T1070.001 | 🔜 planned |
+| 05 | [Event log clearing](./attacks/05-log-clearing) | T1070.001 | ✅ done |
 | 06 | Scheduled task persistence | T1053.005 | 🔜 planned |
 
 *(Table will be updated as scenarios are documented.)*
