@@ -1,0 +1,65 @@
+<!--
+  Custom Wazuh detection rules for home-soc-lab.
+  Deploy to:  /var/ossec/etc/rules/local_rules.xml  on the Wazuh manager,
+  then:        sudo systemctl restart wazuh-manager
+-->
+
+<group name="local,custom,">
+
+  <!--
+    Scenario 02 — Kerberoasting (MITRE T1558.003)
+    TGS request (Event 4769) using weak RC4 (0x17) against a named service account.
+  -->
+  <rule id="100100" level="12">
+    <if_sid>60103</if_sid>
+    <field name="win.system.eventID">^4769$</field>
+    <field name="win.eventdata.ticketEncryptionType">^0x17$</field>
+    <description>Possible Kerberoasting: TGS request with weak RC4 encryption for service $(win.eventdata.serviceName) by $(win.eventdata.targetUserName)</description>
+    <mitre>
+      <id>T1558.003</id>
+    </mitre>
+  </rule>
+
+  <!--
+    Scenario 03 — Credential Dumping / LSASS access (MITRE T1003.001)
+    Sysmon Event 10 (ProcessAccess) targeting lsass.exe, with a baseline of
+    known-good processes excluded to suppress false positives.
+  -->
+  <rule id="100101" level="12">
+    <if_group>sysmon_event_10</if_group>
+    <field name="win.eventdata.targetImage">lsass\.exe$</field>
+    <field name="win.eventdata.sourceImage" negate="yes">svchost\.exe$|VBoxService\.exe$|MsMpEng\.exe$|wininit\.exe$|services\.exe$|csrss\.exe$|lsass\.exe$|SearchIndexer\.exe$|MicrosoftEdgeUpdate\.exe$</field>
+    <description>Possible credential dumping: process $(win.eventdata.sourceImage) accessed LSASS memory</description>
+    <mitre>
+      <id>T1003.001</id>
+    </mitre>
+  </rule>
+
+  <!--
+    Scenario 04 — Defender Tampering / Impair Defenses (MITRE T1562.001)
+    Escalates built-in rule 62154 to level 12 when a protection is disabled or an
+    exclusion is added (filters out benign Defender startup noise).
+  -->
+  <rule id="100102" level="12">
+    <if_sid>62154</if_sid>
+    <field name="win.system.message">Exclusions\\Paths|DisableRealtimeMonitoring|DisableBehaviorMonitoring|DisableAntiSpyware|TamperProtection</field>
+    <description>Possible Defender tampering: a security setting was disabled or an exclusion was added</description>
+    <mitre>
+      <id>T1562.001</id>
+    </mitre>
+  </rule>
+
+  <!--
+    Scenario 05 — Event Log Clearing / Anti-Forensics (MITRE T1070.001)
+    Promotes the built-in log-cleared rules (63103 Security / 63104 System) from
+    level 5 to level 12 — log clearing is high-signal and rarely legitimate.
+  -->
+  <rule id="100103" level="12">
+    <if_sid>63103,63104</if_sid>
+    <description>Possible anti-forensics: Windows event log was cleared</description>
+    <mitre>
+      <id>T1070.001</id>
+    </mitre>
+  </rule>
+
+</group>
