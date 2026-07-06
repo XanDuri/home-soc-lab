@@ -63,9 +63,9 @@ schtasks /query /tn "WindowsUpdateCheck"
 # WindowsUpdateCheck    N/A    Ready
 ```
 
-> 📸 **SCREENSHOT 1 — `screenshots/01-schtasks-create.png`**
-> WS01 PowerShell — the `schtasks /create` command and the `schtasks /query`
-> confirming the task is Ready.
+![Creating the scheduled task on WS01](screenshots/01-schtasks-create.png)
+
+*`schtasks /create` registers the boot-persistent task as SYSTEM; `schtasks /query` confirms it is Ready.*
 
 ---
 
@@ -96,9 +96,9 @@ Three red flags in one task: **BootTrigger** (persistence), **powershell.exe**
 (script execution), and **S-1-5-18** (SYSTEM). Any one is suspicious; all three
 together is a textbook persistence mechanism.
 
-> 📸 **SCREENSHOT 2 — `screenshots/02-event-4698-raw.png`**
-> The raw Event 4698 showing the task XML — BootTrigger, powershell.exe command,
-> and the SYSTEM (S-1-5-18) principal.
+![Raw Event 4698 with the task XML](screenshots/02-event-4698-raw.png)
+
+*The raw Event 4698 — the full task XML showing the BootTrigger, the powershell.exe command, and the SYSTEM (S-1-5-18) principal.*
 
 ---
 
@@ -111,8 +111,9 @@ created") — but at **level 4**. Since tasks are created legitimately all the t
 (Windows, installers, updaters), level 4 is appropriate for the *generic* event
 but far too low for a *malicious* one.
 
-> 📸 **SCREENSHOT 3 — `screenshots/03-wazuh-builtin-level4.png`**
-> The built-in alert 60228 firing at level 4 on the task creation.
+![Built-in Wazuh alert 60228 at level 4](screenshots/03-wazuh-builtin-level4.png)
+
+*The built-in alert 60228 fires on the task creation — but only at level 4 (informational).*
 
 ### Custom rule — escalate suspicious tasks
 
@@ -131,8 +132,9 @@ trigger. Stored in [`/wazuh-rules/local_rules.xml`](../../wazuh-rules/local_rule
 </rule>
 ```
 
-> 📸 **SCREENSHOT 4 — `screenshots/04-custom-rule-100104.png`**
-> The custom rule 100104 in `local_rules.xml`.
+![Custom rule 100104 in local_rules.xml](screenshots/04-custom-rule-100104.png)
+
+*The custom rule 100104 — inherits from built-in rule 60228 and escalates suspicious tasks to level 12.*
 
 The rule fired on the malicious task:
 
@@ -141,8 +143,9 @@ Rule 100104 (level 12):
 Suspicious scheduled task created (runs script/SYSTEM/at boot) - possible persistence
 ```
 
-> 📸 **SCREENSHOT 5 — `screenshots/05-wazuh-alert-100104.png`**
-> The custom alert 100104 (level 12) for the suspicious scheduled task.
+![Wazuh custom alert 100104 at level 12](screenshots/05-wazuh-alert-100104.png)
+
+*The custom alert 100104 (level 12) for the suspicious scheduled task, mapped to T1053.005.*
 
 This keeps benign task creation quiet (level 4) while promoting genuinely
 suspicious tasks to a high-priority alert — the same severity-tuning approach used
