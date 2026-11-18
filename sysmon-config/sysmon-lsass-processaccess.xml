@@ -1,0 +1,15 @@
+<!--
+  Sysmon config fragment used on WS01 (Scenario 03 — LSASS credential dumping).
+  The default SwiftOnSecurity config logged ZERO ProcessAccess (Event ID 10)
+  events for lsass.exe, so this rule explicitly includes them.
+  Merge into your Sysmon config and apply with:  sysmon64.exe -c sysmonconfig.xml
+-->
+<Sysmon schemaversion="4.50">
+  <EventFiltering>
+    <RuleGroup name="" groupRelation="or">
+      <ProcessAccess onmatch="include">
+        <TargetImage condition="image">lsass.exe</TargetImage>
+      </ProcessAccess>
+    </RuleGroup>
+  </EventFiltering>
+</Sysmon>

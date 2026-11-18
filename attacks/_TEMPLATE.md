@@ -27,7 +27,7 @@ Which Windows Event IDs / Sysmon events / Wazuh alerts are generated.
 - Event ID xxxx — <description>
 - Wazuh rule xxxxx — <description>
 
-*(Add screenshots of the Wazuh dashboard in `/screenshots`.)*
+*(Add screenshots of the Wazuh dashboard in this scenario's `screenshots/` folder.)*
 
 ## 4. Detection logic
 

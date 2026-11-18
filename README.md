@@ -103,7 +103,7 @@ and a SOC-style incident report.
 | 05 | [Event log clearing](./attacks/05-log-clearing) | T1070.001 | ✅ done |
 | 06 | [Scheduled task persistence](./attacks/06-scheduled-task) | T1053.005 | ✅ done |
 
-*(Table will be updated as scenarios are documented.)*
+Five of the six scenarios use a **custom Wazuh rule** (100100–100104, all level 12) — see [`/wazuh-rules`](./wazuh-rules). Scenario 01 is caught by Wazuh's built-in ruleset.
 
 ---
 
@@ -115,11 +115,10 @@ home-soc-lab/
 ├── docs/
 │   ├── 01-architecture/      # network design, IP plan, isolation strategy
 │   └── 02-setup/             # how each machine was built
-├── attacks/                  # one folder per attack/detection scenario
-├── wazuh-rules/              # custom Wazuh detection rules (XML)
-├── sysmon-config/            # Sysmon configuration used on endpoints
-├── incident-reports/         # SOC-style incident write-ups
-└── screenshots/              # dashboard & evidence screenshots
+├── attacks/                  # one folder per scenario: attack, logs, detection,
+│   └── 0X-<scenario>/        #   incident report, lessons learned + screenshots/
+├── wazuh-rules/              # custom Wazuh detection rules (local_rules.xml)
+└── sysmon-config/            # Sysmon config fragment used on WS01
 ```
 
 ---
