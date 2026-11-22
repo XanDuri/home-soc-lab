@@ -3,7 +3,7 @@
   Deploy to:  /var/ossec/etc/rules/local_rules.xml  on the Wazuh manager,
   then:        sudo systemctl restart wazuh-manager
 
-  Five custom detection rules, one per attack scenario, each mapped to MITRE ATT&CK.
+  Six custom detection rules, one per attack scenario, each mapped to MITRE ATT&CK.
 -->
 
 <group name="local,custom,">
@@ -75,6 +75,21 @@
     <description>Suspicious scheduled task created (runs script/SYSTEM/at boot) - possible persistence</description>
     <mitre>
       <id>T1053.005</id>
+    </mitre>
+  </rule>
+
+  <!--
+    Scenario 07 — Password Spraying (MITRE T1110.003)
+    Many different accounts failing from one source IP in a short window.
+    frequency/timeframe: 5 distinct-account failures within 120 seconds.
+  -->
+  <rule id="100105" level="12" frequency="5" timeframe="120">
+    <if_matched_sid>60122</if_matched_sid>
+    <same_field>win.eventdata.ipAddress</same_field>
+    <different_field>win.eventdata.targetUserName</different_field>
+    <description>Possible password spraying: failed logons against multiple accounts from $(win.eventdata.ipAddress)</description>
+    <mitre>
+      <id>T1110.003</id>
     </mitre>
   </rule>
 
