@@ -1,6 +1,6 @@
 # Custom Wazuh rules
 
-`local_rules.xml` contains the five custom detection rules written for this lab.
+`local_rules.xml` contains the six custom detection rules written for this lab.
 
 **Deploy:** copy to `/var/ossec/etc/rules/local_rules.xml` on the Wazuh manager,
 test with `/var/ossec/bin/wazuh-logtest`, then `sudo systemctl restart wazuh-manager`.
@@ -12,6 +12,7 @@ test with `/var/ossec/bin/wazuh-logtest`, then `sudo systemctl restart wazuh-man
 | 100102 | 12 | `if_sid` 62154 | Defender protection disabled / exclusion added | T1562.001 | [04](../attacks/04-defender-tampering) |
 | 100103 | 12 | `if_sid` 63103, 63104 | Security / System event log cleared | T1070.001 | [05](../attacks/05-log-clearing) |
 | 100104 | 12 | `if_sid` 60228 | Scheduled task with script host / SYSTEM / boot trigger | T1053.005 | [06](../attacks/06-scheduled-task) |
+| 100105 | 12 | `if_matched_sid` 60122 | Failed logons against many accounts from one source IP — password spraying | T1110.003 | [07](../attacks/07-password-spraying) |
 
 Scenario 01 (RDP brute force) is detected by built-in rules 60122, 60204 and 92657.
 
@@ -29,5 +30,6 @@ These rules were validated in a small lab. Before production use I would:
   `GrantedAccess` values typical of dumping (e.g. `0x1FFFFF`, `0x1010`).
 - **100104** — `S-1-5-18` alone matches many legitimate updater tasks; require a
   **combination** of hallmarks (e.g. SYSTEM + script host) or exclude known tasks.
-- **Brute force** — add a password-spraying rule: many *different* accounts
-  failing from one source IP, plus account lockouts (Event 4740).
+- **100105** — also alert on account lockouts (Event 4740), and add a
+  longer-window variant to catch "low and slow" sprays that stay under the
+  5-in-120s frequency threshold.
