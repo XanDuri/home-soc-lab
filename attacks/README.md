@@ -13,5 +13,6 @@ casebook. Copy [`_TEMPLATE.md`](./_TEMPLATE.md) into a new folder for each one.
 | 04 | Defender tampering | T1562.001 | [`04-defender-tampering/`](./04-defender-tampering) |
 | 05 | Event log clearing | T1070.001 | [`05-log-clearing/`](./05-log-clearing) |
 | 06 | Scheduled task persistence | T1053.005 | [`06-scheduled-task/`](./06-scheduled-task) |
+| 07 | Password spraying | T1110.003 | [`07-password-spraying/`](./07-password-spraying) |
 
 The custom detection rules for all scenarios live in [`/wazuh-rules/local_rules.xml`](../wazuh-rules/local_rules.xml).
