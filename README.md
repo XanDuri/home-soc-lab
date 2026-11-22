@@ -102,8 +102,9 @@ and a SOC-style incident report.
 | 04 | [Defender tampering](./attacks/04-defender-tampering) | T1562.001 | ✅ done |
 | 05 | [Event log clearing](./attacks/05-log-clearing) | T1070.001 | ✅ done |
 | 06 | [Scheduled task persistence](./attacks/06-scheduled-task) | T1053.005 | ✅ done |
+| 07 | [Password spraying](./attacks/07-password-spraying) | T1110.003 | ✅ done |
 
-Five of the six scenarios use a **custom Wazuh rule** (100100–100104, all level 12) — see [`/wazuh-rules`](./wazuh-rules). Scenario 01 is caught by Wazuh's built-in ruleset.
+Six of the seven scenarios use a **custom Wazuh rule** (100100–100105, all level 12) — see [`/wazuh-rules`](./wazuh-rules). Scenario 01 is caught by Wazuh's built-in ruleset.
 
 ---
 
